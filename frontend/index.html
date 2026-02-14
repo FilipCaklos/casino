@@ -38,6 +38,82 @@
         </div>
     </div>
 
+    <!-- Profile Modal -->
+    <div id="profileModal" class="modal">
+        <div class="modal-content profile-modal-content">
+            <button class="modal-close" id="profileModalClose">×</button>
+            <h2 class="modal-title">👤 Profile Settings</h2>
+            
+            <div class="profile-tabs">
+                <button class="profile-tab active" data-tab="coupon">🎟️ Coupons</button>
+                <button class="profile-tab" data-tab="password">🔒 Security</button>
+                <button class="profile-tab" data-tab="info">📋 Info</button>
+            </div>
+
+            <!-- Coupon Tab -->
+            <div id="couponTab" class="profile-tab-content active">
+                <h3>Redeem Promotional Code</h3>
+                <div class="coupon-form">
+                    <input type="text" id="couponCode" placeholder="Enter coupon code" class="input-field">
+                    <button id="redeemCouponBtn" class="auth-btn">Redeem Code</button>
+                    <p class="coupon-message" id="couponMessage"></p>
+                </div>
+                <div class="available-coupons">
+                    <h4>Available Coupons:</h4>
+                    <ul>
+                        <li><code>WELCOME</code> - $2,000 bonus</li>
+                        <li><code>BOOST50</code> - $5,000 bonus</li>
+                        <li><code>LUCKY777</code> - $7,777 bonus</li>
+                        <li><code>CASINO100</code> - $10,000 bonus</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Password Tab -->
+            <div id="passwordTab" class="profile-tab-content">
+                <h3>Change Password</h3>
+                <div class="password-form">
+                    <input type="password" id="currentPassword" placeholder="Current Password" class="input-field">
+                    <input type="password" id="newPassword" placeholder="New Password" class="input-field">
+                    <input type="password" id="confirmNewPassword" placeholder="Confirm New Password" class="input-field">
+                    <button id="changePasswordBtn" class="auth-btn">Change Password</button>
+                    <p class="password-message" id="passwordMessage"></p>
+                </div>
+            </div>
+
+            <!-- Info Tab -->
+            <div id="infoTab" class="profile-tab-content">
+                <h3>Account Information</h3>
+                <div class="info-display">
+                    <div class="info-row">
+                        <span class="info-label">Username:</span>
+                        <span class="info-value" id="profileUsername">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Balance:</span>
+                        <span class="info-value">$<span id="profileBalance">0</span></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Total Bets:</span>
+                        <span class="info-value" id="profileTotalBets">0</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Total Wins:</span>
+                        <span class="info-value" id="profileTotalWins">0</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Biggest Win:</span>
+                        <span class="info-value">$<span id="profileBiggestWin">0</span></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Member Since:</span>
+                        <span class="info-value" id="profileMemberSince">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Victory Animation Container -->
     <div id="victoryContainer"></div>
 
@@ -61,7 +137,7 @@
                     <button id="profileBtn" class="profile-btn">👤</button>
                 </div>
                 <div id="profileDropdown" class="profile-dropdown hidden">
-                    <button id="couponBtn" class="dropdown-item">🎟️ Redeem Coupon</button>
+                    <button id="openProfileBtn" class="dropdown-item">⚙️ Profile Settings</button>
                     <button id="logoutBtn" class="dropdown-item logout">🚪 Logout</button>
                 </div>
             </div>
@@ -156,17 +232,42 @@
                 </div>
 
                 <div class="lobby-stats">
-                    <div class="stat-item">
-                        <div class="stat-value" id="totalBets">0</div>
-                        <div class="stat-label">Total Bets</div>
+                    <h3 class="stats-title">📊 Your Statistics</h3>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-value" id="totalBets">0</div>
+                            <div class="stat-label">Total Bets</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="totalWins">0</div>
+                            <div class="stat-label">Total Wins</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="biggestWin">$0</div>
+                            <div class="stat-label">Biggest Win</div>
+                        </div>
                     </div>
-                    <div class="stat-item">
-                        <div class="stat-value" id="totalWins">0</div>
-                        <div class="stat-label">Total Wins</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value" id="biggestWin">$0</div>
-                        <div class="stat-label">Biggest Win</div>
+                </div>
+
+                <div class="global-stats">
+                    <h3 class="stats-title">🌍 Global Casino Statistics</h3>
+                    <div class="stats-grid">
+                        <div class="stat-item global">
+                            <div class="stat-value" id="globalTotalUsers">0</div>
+                            <div class="stat-label">Total Players</div>
+                        </div>
+                        <div class="stat-item global">
+                            <div class="stat-value" id="globalTotalBets">0</div>
+                            <div class="stat-label">Global Bets</div>
+                        </div>
+                        <div class="stat-item global">
+                            <div class="stat-value" id="globalTotalWins">0</div>
+                            <div class="stat-label">Global Wins</div>
+                        </div>
+                        <div class="stat-item global">
+                            <div class="stat-value" id="globalBiggestWin">$0</div>
+                            <div class="stat-label">Biggest Win Ever</div>
+                        </div>
                     </div>
                 </div>
             </section>

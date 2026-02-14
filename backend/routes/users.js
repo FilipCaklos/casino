@@ -81,4 +81,65 @@ router.post('/reset-balance', auth, async (req, res) => {
     }
 });
 
+// Get global statistics (all users combined)
+router.get('/global-stats', async (req, res) => {
+    try {
+        const stats = await User.aggregate([
+            {
+                $group: {
+                    _id: null,
+                    totalUsers: { $sum: 1 },
+                    totalBets: { $sum: '$totalBets' },
+                    totalWins: { $sum: '$totalWins' },
+                    totalMoneyBet: { $sum: '$totalBets' }, // Approximate
+                    biggestWinEver: { $max: '$biggestWin' }
+                }
+            }
+        ]);
+
+        if (stats.length === 0) {
+            return res.json({
+                totalUsers: 0,
+                totalBets: 0,
+                totalWins: 0,
+                totalMoneyBet: 0,
+                biggestWinEver: 0
+            });
+        }
+
+        res.json(stats[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Change password
+router.post('/change-password', auth, async (req, res) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+
+        if (!currentPassword || !newPassword) {
+            return res.status(400).json({ error: 'All fields required' });
+        }
+
+        if (newPassword.length < 4) {
+            return res.status(400).json({ error: 'New password must be at least 4 characters' });
+        }
+
+        const user = await User.findById(req.user.id);
+        const isMatch = await user.comparePassword(currentPassword);
+
+        if (!isMatch) {
+            return res.status(401).json({ error: 'Current password is incorrect' });
+        }
+
+        user.password = newPassword;
+        await user.save();
+
+        res.json({ message: 'Password changed successfully' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 module.exports = router;

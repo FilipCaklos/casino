@@ -231,19 +231,161 @@ function initializeAuth() {
     });
 
     document.getElementById('logoutBtn').addEventListener('click', logout);
-    document.getElementById('couponBtn').addEventListener('click', showCouponDialog);
+    document.getElementById('openProfileBtn').addEventListener('click', () => {
+        openProfileModal();
+        document.getElementById('profileDropdown').classList.add('hidden');
+    });
+}
+
+// ==================== PROFILE MODAL ====================
+function openProfileModal() {
+    document.getElementById('profileModal').classList.add('active');
+    loadProfileInfo();
+}
+
+function closeProfileModal() {
+    document.getElementById('profileModal').classList.remove('active');
+}
+
+async function loadProfileInfo() {
+    if (currentUser) {
+        document.getElementById('profileUsername').textContent = currentUser.username;
+        document.getElementById('profileBalance').textContent = balance.toFixed(0);
+        document.getElementById('profileTotalBets').textContent = totalBets;
+        document.getElementById('profileTotalWins').textContent = totalWins;
+        document.getElementById('profileBiggestWin').textContent = biggestWin.toFixed(0);
+        
+        if (currentUser.createdAt) {
+            const date = new Date(currentUser.createdAt);
+            document.getElementById('profileMemberSince').textContent = date.toLocaleDateString();
+        }
+    }
+}
+
+function initializeProfileModal() {
+    // Close button
+    document.getElementById('profileModalClose').addEventListener('click', closeProfileModal);
+    
+    // Close on outside click
+    document.getElementById('profileModal').addEventListener('click', (e) => {
+        if (e.target.id === 'profileModal') {
+            closeProfileModal();
+        }
+    });
+
+    // Tab switching
+    document.querySelectorAll('.profile-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            const tabName = tab.getAttribute('data-tab');
+            switchProfileTab(tabName);
+        });
+    });
+
+    // Coupon redemption
+    document.getElementById('redeemCouponBtn').addEventListener('click', async () => {
+        const code = document.getElementById('couponCode').value.trim();
+        if (!code) {
+            showCouponMessage('Please enter a coupon code', 'error');
+            return;
+        }
+
+        const result = await redeemCoupon(code);
+        if (result.success) {
+            showCouponMessage(result.message, 'success');
+            document.getElementById('couponCode').value = '';
+            loadProfileInfo();
+        } else {
+            showCouponMessage(result.message, 'error');
+        }
+    });
+
+    // Password change
+    document.getElementById('changePasswordBtn').addEventListener('click', async () => {
+        const currentPassword = document.getElementById('currentPassword').value;
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+
+        if (!currentPassword || !newPassword || !confirmNewPassword) {
+            showPasswordMessage('All fields are required', 'error');
+            return;
+        }
+
+        if (newPassword !== confirmNewPassword) {
+            showPasswordMessage('New passwords do not match', 'error');
+            return;
+        }
+
+        if (newPassword.length < 4) {
+            showPasswordMessage('Password must be at least 4 characters', 'error');
+            return;
+        }
+
+        try {
+            const result = await apiCall('/users/change-password', {
+                method: 'POST',
+                body: JSON.stringify({ currentPassword, newPassword })
+            });
+
+            showPasswordMessage(result.message, 'success');
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmNewPassword').value = '';
+        } catch (error) {
+            showPasswordMessage(error.message, 'error');
+        }
+    });
+}
+
+function switchProfileTab(tabName) {
+    // Update tab buttons
+    document.querySelectorAll('.profile-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    document.querySelector(`.profile-tab[data-tab="${tabName}"]`).classList.add('active');
+
+    // Update tab content
+    document.querySelectorAll('.profile-tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    document.getElementById(`${tabName}Tab`).classList.add('active');
+}
+
+function showCouponMessage(message, type) {
+    const messageEl = document.getElementById('couponMessage');
+    messageEl.textContent = message;
+    messageEl.className = `coupon-message ${type}`;
+    setTimeout(() => {
+        messageEl.textContent = '';
+        messageEl.className = 'coupon-message';
+    }, 5000);
+}
+
+function showPasswordMessage(message, type) {
+    const messageEl = document.getElementById('passwordMessage');
+    messageEl.textContent = message;
+    messageEl.className = `password-message ${type}`;
+    setTimeout(() => {
+        messageEl.textContent = '';
+        messageEl.className = 'password-message';
+    }, 5000);
+}
+
+// ==================== GLOBAL STATISTICS ====================
+async function loadGlobalStats() {
+    try {
+        const stats = await apiCall('/users/global-stats');
+        document.getElementById('globalTotalUsers').textContent = stats.totalUsers || 0;
+        document.getElementById('globalTotalBets').textContent = (stats.totalBets || 0).toLocaleString();
+        document.getElementById('globalTotalWins').textContent = (stats.totalWins || 0).toLocaleString();
+        document.getElementById('globalBiggestWin').textContent = '$' + (stats.biggestWinEver || 0).toLocaleString();
+    } catch (error) {
+        console.error('Error loading global stats:', error);
+    }
 }
 
 async function showCouponDialog() {
-    const code = prompt('Enter Coupon Code:\n\nDemo codes: BOOST50, CASINO100, LUCKY777, SPIN50, WELCOME');
-    if (code) {
-        const result = await redeemCoupon(code);
-        if (result.success) {
-            showMessage('slotMessage', result.message, 'win');
-        } else {
-            showMessage('slotMessage', result.message, 'lose');
-        }
-    }
+    openProfileModal();
+    switchProfileTab('coupon');
     document.getElementById('profileDropdown').classList.add('hidden');
 }
 
@@ -260,6 +402,8 @@ function loadUserData() {
         initializeDice();
         initializePoker();
         initializeKeno();
+        initializeProfileModal();
+        loadGlobalStats();
     }
 }
 
