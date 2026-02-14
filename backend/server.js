@@ -29,14 +29,20 @@ app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use(express.static('../frontend'));
 
 // MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/royal-casino', {
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/royal-casino';
+console.log('🔌 Connecting to MongoDB...');
+console.log('📍 URI:', MONGODB_URI.replace(/\/\/[^:]+:[^@]+@/, '//****:****@')); // Hide credentials
+
+mongoose.connect(MONGODB_URI, {
     useNewUrlParser: true,
-    useUnifiedTopology: true
+    useUnifiedTopology: true,
+    serverSelectionTimeoutMS: 5000
 }).then(() => {
-    console.log('✅ MongoDB connected');
+    console.log('✅ MongoDB connected successfully');
 }).catch(err => {
-    console.error('❌ MongoDB connection error:', err);
-    process.exit(1);
+    console.error('❌ MongoDB connection error:', err.message);
+    console.error('⚠️  App will run but database features will not work');
+    console.error('💡 To fix: Set MONGODB_URI environment variable in DigitalOcean');
 });
 
 // Routes
