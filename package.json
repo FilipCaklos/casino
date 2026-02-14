@@ -1,0 +1,22 @@
+{
+  "name": "royal-casino",
+  "version": "1.0.0",
+  "description": "A production-ready online casino platform with games, user authentication, and database persistence",
+  "scripts": {
+    "dev": "docker-compose up",
+    "prod": "docker-compose --env-file .env.production up -d",
+    "logs": "docker-compose logs -f backend",
+    "down": "docker-compose down",
+    "backup": "docker exec royal-casino-db mongodump --archive=/backup.archive"
+  },
+  "keywords": [
+    "casino",
+    "games",
+    "nodejs",
+    "mongodb",
+    "docker",
+    "digitalocean"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}

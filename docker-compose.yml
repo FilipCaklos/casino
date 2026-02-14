@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:6.0
+    container_name: royal-casino-db
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_DATABASE: royal-casino
+    volumes:
+      - mongodb_data:/data/db
+      - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    networks:
+      - casino-network
+
+  backend:
+    build: .
+    container_name: royal-casino-api
+    ports:
+      - "5000:5000"
+    environment:
+      NODE_ENV: production
+      MONGODB_URI: mongodb://admin:password@mongo:27017/royal-casino?authSource=admin
+      JWT_SECRET: ${JWT_SECRET:-your_jwt_secret_key_change_this_in_production}
+      CLIENT_URL: ${CLIENT_URL:-http://localhost:3000}
+      PORT: 5000
+    depends_on:
+      - mongo
+    networks:
+      - casino-network
+    restart: unless-stopped
+
+volumes:
+  mongodb_data:
+
+networks:
+  casino-network:
+    driver: bridge
