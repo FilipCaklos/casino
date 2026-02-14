@@ -101,7 +101,7 @@ async function updateBalance(game, bet, win = 0) {
         totalBets = data.totalBets;
         totalWins = data.totalWins;
         biggestWin = data.biggestWin;
-        updateBalance();
+        updateBalanceDisplay();
         updateStats();
 
         return data;
@@ -136,7 +136,7 @@ async function redeemCoupon(code) {
         });
 
         balance = data.balance;
-        updateBalance();
+        updateBalanceDisplay();
         triggerVictoryAnimation(data.bonus);
         return { success: true, message: data.message, bonus: data.bonus };
     } catch (error) {
@@ -250,7 +250,7 @@ async function showCouponDialog() {
 function loadUserData() {
     if (authToken && currentUser) {
         document.getElementById('usernameDisplay').textContent = currentUser.username;
-        updateBalance();
+        updateBalanceDisplay();
         updateStats();
         
         initializeNavigation();
@@ -326,7 +326,7 @@ function triggerSmallWin(amount) {
 }
 
 // ==================== UTILITIES ====================
-function updateBalance() {
+function updateBalanceDisplay() {
     document.getElementById('balance').textContent = balance.toFixed(0);
 }
 
@@ -620,7 +620,7 @@ function doubleDown() {
 
     balance -= bjBet;
     bjBet *= 2;
-    updateBalance();
+    updateBalanceDisplay();
 
     playerHand.push(deck.pop());
     renderBlackjackHands(false);
@@ -679,7 +679,7 @@ function createCardBack() {
 
 function endBlackjackGame(message, type) {
     gameInProgress = false;
-    updateBalance();
+    updateBalanceDisplay();
     updateStats();
     showMessage('bjMessage', message, type);
     
@@ -735,7 +735,7 @@ function placeBet(cell) {
     balance -= rouletteChipValue;
     rouletteTotalBet += rouletteChipValue;
 
-    updateBalance();
+    updateBalanceDisplay();
     updateRouletteBetDisplay(cell, rouletteBets[betType]);
     document.getElementById('rouletteTotalBet').textContent = rouletteTotalBet;
 }
@@ -756,7 +756,7 @@ function clearRouletteBets() {
     if (rouletteSpinning) return;
 
     balance += rouletteTotalBet;
-    updateBalance();
+    updateBalanceDisplay();
 
     rouletteBets = {};
     rouletteTotalBet = 0;
@@ -1027,7 +1027,7 @@ async function endPokerGame() {
         showMessage('pokerMessage', '🃏 Dealer wins!', 'lose');
     }
 
-    updateBalance();
+    updateBalanceDisplay();
     updateStats();
     pokerGameInProgress = false;
 
