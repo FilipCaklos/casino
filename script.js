@@ -265,7 +265,7 @@ function saveUserData() {
 }
 
 function showCouponDialog() {
-    const code = prompt('Enter Coupon Code:\n\nDemo codes: BOOST50, CASINO100, LUCKY777, SPIN50, WELCOME');
+    const code = prompt('Enter Coupon Code:');
     if (code) {
         const result = db.redeemCoupon(currentUser, code);
         if (result.success) {
