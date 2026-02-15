@@ -58,7 +58,11 @@ class CasinoDatabase {
 
     redeemCoupon(username, couponCode) {
         const couponData = {
-
+            'BOOST50': { bonus: 5000, message: '🎉 +$5,000 Bonus!' },
+            'CASINO100': { bonus: 10000, message: '💰 +$10,000 Bonus!' },
+            'LUCKY777': { bonus: 7777, message: '🍀 +$7,777 Lucky Bonus!' },
+            'SPIN50': { bonus: 5000, message: '🎡 +$5,000 Spin Bonus!' },
+            'WELCOME': { bonus: 2000, message: '👋 +$2,000 Welcome Bonus!' }
         };
 
         if (!couponData[couponCode]) {
