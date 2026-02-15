@@ -808,6 +808,138 @@ body {
     transform: translateX(-5px);
 }
 
+/* ==================== PROFILE PAGE ==================== */
+.profile-content {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.profile-info-box,
+.profile-coupon-box,
+.profile-password-box {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+    border: 2px solid rgba(255, 215, 0, 0.3);
+    border-radius: 15px;
+    padding: 30px;
+    transition: all 0.3s ease;
+}
+
+.profile-info-box:hover,
+.profile-coupon-box:hover,
+.profile-password-box:hover {
+    border-color: #ffd700;
+    box-shadow: 0 10px 40px rgba(255, 215, 0, 0.2);
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.08) 0%, rgba(255, 215, 0, 0.03) 100%);
+}
+
+.profile-info-box h3,
+.profile-coupon-box h3,
+.profile-password-box h3 {
+    color: #ffd700;
+    font-size: 1.5em;
+    margin-bottom: 20px;
+    font-family: 'Cinzel', serif;
+}
+
+.profile-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.info-card {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 15px;
+    border-radius: 10px;
+    border-left: 4px solid #ffd700;
+    display: flex;
+    flex-direction: column;
+}
+
+.info-label {
+    color: #b8c6db;
+    font-size: 0.9em;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+.info-value {
+    color: #ffd700;
+    font-size: 1.3em;
+    font-weight: bold;
+}
+
+.coupon-section,
+.password-section {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.coupon-input-group {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.coupon-input-group .input-field {
+    flex: 1;
+    min-width: 200px;
+}
+
+.coupon-input-group .auth-btn {
+    flex-shrink: 0;
+}
+
+.available-coupons-section {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 10px;
+}
+
+.available-coupons-section h4 {
+    color: #ffd700;
+    margin-bottom: 10px;
+    font-size: 1.1em;
+}
+
+.coupons-list {
+    list-style: none;
+    padding: 0;
+}
+
+.coupons-list li {
+    padding: 8px 0;
+    color: #b8c6db;
+    border-bottom: 1px solid rgba(255, 215, 0, 0.1);
+    font-size: 0.95em;
+}
+
+.coupons-list li:last-child {
+    border-bottom: none;
+}
+
+.coupons-list code {
+    background: rgba(255, 215, 0, 0.1);
+    color: #ffd700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.password-section {
+    display: flex;
+    flex-direction: column;
+}
+
+.password-section .input-field {
+    width: 100%;
+}
+
 /* ==================== SLOTS ==================== */
 .slots-container {
     display: flex;

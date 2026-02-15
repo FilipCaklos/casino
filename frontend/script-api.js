@@ -138,6 +138,7 @@ async function redeemCoupon(code) {
         balance = data.balance;
         updateBalanceDisplay();
         triggerVictoryAnimation(data.bonus);
+        loadProfilePageInfo();
         return { success: true, message: data.message, bonus: data.bonus };
     } catch (error) {
         return { success: false, message: error.message };
@@ -350,6 +351,92 @@ function switchProfileTab(tabName) {
     document.getElementById(`${tabName}Tab`).classList.add('active');
 }
 
+// ==================== PROFILE PAGE ====================
+function loadProfilePageInfo() {
+    if (currentUser) {
+        document.getElementById('profilePageUsername').textContent = currentUser.username;
+        document.getElementById('profilePageBalance').textContent = balance.toFixed(0);
+        document.getElementById('profilePageTotalBets').textContent = totalBets;
+        document.getElementById('profilePageTotalWins').textContent = totalWins;
+        document.getElementById('profilePageBiggestWin').textContent = biggestWin.toFixed(0);
+        
+        if (currentUser.createdAt) {
+            const date = new Date(currentUser.createdAt);
+            document.getElementById('profilePageMemberSince').textContent = date.toLocaleDateString();
+        }
+    }
+}
+
+function initializeProfilePage() {
+    // Coupon redemption on profile page
+    const profilePageRedeemBtn = document.getElementById('profilePageRedeemCouponBtn');
+    if (profilePageRedeemBtn) {
+        profilePageRedeemBtn.addEventListener('click', async () => {
+            const code = document.getElementById('profilePageCouponCode').value.trim();
+            if (!code) {
+                document.getElementById('profilePageCouponMessage').textContent = '⚠️ Please enter a coupon code';
+                document.getElementById('profilePageCouponMessage').className = 'coupon-message error';
+                return;
+            }
+
+            const result = await redeemCoupon(code);
+            if (result.success) {
+                document.getElementById('profilePageCouponMessage').textContent = '✅ ' + result.message;
+                document.getElementById('profilePageCouponMessage').className = 'coupon-message success';
+                document.getElementById('profilePageCouponCode').value = '';
+                loadProfilePageInfo();
+            } else {
+                document.getElementById('profilePageCouponMessage').textContent = '❌ ' + result.message;
+                document.getElementById('profilePageCouponMessage').className = 'coupon-message error';
+            }
+        });
+    }
+
+    // Password change on profile page
+    const profilePageChangePasswordBtn = document.getElementById('profilePageChangePasswordBtn');
+    if (profilePageChangePasswordBtn) {
+        profilePageChangePasswordBtn.addEventListener('click', async () => {
+            const currentPassword = document.getElementById('profilePageCurrentPassword').value;
+            const newPassword = document.getElementById('profilePageNewPassword').value;
+            const confirmNewPassword = document.getElementById('profilePageConfirmNewPassword').value;
+
+            if (!currentPassword || !newPassword || !confirmNewPassword) {
+                document.getElementById('profilePagePasswordMessage').textContent = '⚠️ All fields are required';
+                document.getElementById('profilePagePasswordMessage').className = 'password-message error';
+                return;
+            }
+
+            if (newPassword !== confirmNewPassword) {
+                document.getElementById('profilePagePasswordMessage').textContent = '⚠️ New passwords do not match';
+                document.getElementById('profilePagePasswordMessage').className = 'password-message error';
+                return;
+            }
+
+            if (newPassword.length < 4) {
+                document.getElementById('profilePagePasswordMessage').textContent = '⚠️ Password must be at least 4 characters';
+                document.getElementById('profilePagePasswordMessage').className = 'password-message error';
+                return;
+            }
+
+            try {
+                const result = await apiCall('/users/change-password', {
+                    method: 'POST',
+                    body: JSON.stringify({ currentPassword, newPassword })
+                });
+
+                document.getElementById('profilePagePasswordMessage').textContent = '✅ ' + result.message;
+                document.getElementById('profilePagePasswordMessage').className = 'password-message success';
+                document.getElementById('profilePageCurrentPassword').value = '';
+                document.getElementById('profilePageNewPassword').value = '';
+                document.getElementById('profilePageConfirmNewPassword').value = '';
+            } catch (error) {
+                document.getElementById('profilePagePasswordMessage').textContent = '❌ ' + error.message;
+                document.getElementById('profilePagePasswordMessage').className = 'password-message error';
+            }
+        });
+    }
+}
+
 function showCouponMessage(message, type) {
     const messageEl = document.getElementById('couponMessage');
     messageEl.textContent = message;
@@ -403,6 +490,7 @@ function loadUserData() {
         initializePoker();
         initializeKeno();
         initializeProfileModal();
+        initializeProfilePage();
         loadGlobalStats();
     }
 }

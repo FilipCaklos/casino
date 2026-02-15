@@ -173,6 +173,10 @@
                 <span class="nav-icon">🔢</span>
                 Keno
             </button>
+            <button class="nav-btn" data-game="profile">
+                <span class="nav-icon">👤</span>
+                Profile
+            </button>
         </nav>
 
         <!-- Main Content -->
@@ -602,6 +606,77 @@
                     </div>
                 </div>
                 <div class="game-message" id="kenoMessage"></div>
+            </section>
+
+            <!-- Profile Section -->
+            <section id="profile" class="game-section">
+                <div class="game-header">
+                    <h2>👤 My Profile</h2>
+                    <button class="back-btn">← Back to Lobby</button>
+                </div>
+
+                <div class="profile-content">
+                    <div class="profile-info-box">
+                        <h3>Account Information</h3>
+                        <div class="profile-info-grid">
+                            <div class="info-card">
+                                <span class="info-label">Username:</span>
+                                <span class="info-value" id="profilePageUsername">-</span>
+                            </div>
+                            <div class="info-card">
+                                <span class="info-label">Balance:</span>
+                                <span class="info-value">$<span id="profilePageBalance">0</span></span>
+                            </div>
+                            <div class="info-card">
+                                <span class="info-label">Total Bets:</span>
+                                <span class="info-value" id="profilePageTotalBets">0</span>
+                            </div>
+                            <div class="info-card">
+                                <span class="info-label">Total Wins:</span>
+                                <span class="info-value" id="profilePageTotalWins">0</span>
+                            </div>
+                            <div class="info-card">
+                                <span class="info-label">Biggest Win:</span>
+                                <span class="info-value">$<span id="profilePageBiggestWin">0</span></span>
+                            </div>
+                            <div class="info-card">
+                                <span class="info-label">Member Since:</span>
+                                <span class="info-value" id="profilePageMemberSince">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="profile-coupon-box">
+                        <h3>🎟️ Redeem Coupons to Money</h3>
+                        <div class="coupon-section">
+                            <div class="coupon-input-group">
+                                <input type="text" id="profilePageCouponCode" placeholder="Enter coupon code" class="input-field">
+                                <button id="profilePageRedeemCouponBtn" class="auth-btn">Redeem Coupon</button>
+                            </div>
+                            <p class="coupon-message" id="profilePageCouponMessage"></p>
+                        </div>
+                        <div class="available-coupons-section">
+                            <h4>Available Coupons:</h4>
+                            <ul class="coupons-list">
+                                <li><code>WELCOME</code> - $2,000 bonus</li>
+                                <li><code>BOOST50</code> - $5,000 bonus</li>
+                                <li><code>LUCKY777</code> - $7,777 bonus</li>
+                                <li><code>CASINO100</code> - $10,000 bonus</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="profile-password-box">
+                        <h3>🔒 Change Password</h3>
+                        <div class="password-section">
+                            <input type="password" id="profilePageCurrentPassword" placeholder="Current Password" class="input-field">
+                            <input type="password" id="profilePageNewPassword" placeholder="New Password" class="input-field">
+                            <input type="password" id="profilePageConfirmNewPassword" placeholder="Confirm New Password" class="input-field">
+                            <button id="profilePageChangePasswordBtn" class="auth-btn">Change Password</button>
+                            <p class="password-message" id="profilePagePasswordMessage"></p>
+                        </div>
+                    </div>
+                </div>
             </section>
 
         <!-- Footer -->

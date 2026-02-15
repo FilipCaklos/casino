@@ -316,6 +316,11 @@ function initializeNavigation() {
         gameSections.forEach(section => {
             section.classList.toggle('active', section.id === game);
         });
+
+        // Load profile info when switching to profile page
+        if (game === 'profile') {
+            loadProfilePageInfo();
+        }
     }
 }
 
