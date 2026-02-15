@@ -2,13 +2,17 @@ const jwt = require('jsonwebtoken');
 
 const auth = (req, res, next) => {
     try {
+        const jwtSecret = process.env.JWT_SECRET;
+        if (!jwtSecret) {
+            return res.status(500).json({ error: 'JWT secret not configured' });
+        }
         const token = req.headers.authorization?.split(' ')[1];
         
         if (!token) {
             return res.status(401).json({ error: 'No token provided' });
         }
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret');
+        const decoded = jwt.verify(token, jwtSecret);
         req.user = decoded;
         next();
     } catch (error) {

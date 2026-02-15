@@ -1,12 +1,20 @@
 const express = require('express');
+const { body } = require('express-validator');
 const Coupon = require('../models/Coupon');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
+const admin = require('../middleware/admin');
+const validate = require('../middleware/validate');
 
 const router = express.Router();
 
 // Redeem coupon
-router.post('/redeem', auth, async (req, res) => {
+router.post(
+    '/redeem',
+    auth,
+    [body('code').trim().isLength({ min: 3, max: 20 })],
+    validate,
+    async (req, res) => {
     try {
         const { code } = req.body;
 
@@ -53,17 +61,17 @@ router.post('/redeem', auth, async (req, res) => {
             balance: user.balance
         });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 });
 
 // Get all active coupons (admin)
-router.get('/all', async (req, res) => {
+router.get('/all', auth, admin, async (req, res) => {
     try {
         const coupons = await Coupon.find({ isActive: true });
         res.json(coupons);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 });
 

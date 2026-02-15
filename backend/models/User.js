@@ -19,6 +19,10 @@ const userSchema = new mongoose.Schema({
         required: true,
         minlength: 3
     },
+    isAdmin: {
+        type: Boolean,
+        default: false
+    },
     balance: {
         type: Number,
         default: 10000,

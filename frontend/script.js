@@ -130,6 +130,7 @@ let balance = 0;
 let totalBets = 0;
 let totalWins = 0;
 let biggestWin = 0;
+let gamesInitialized = false;
 
 // ==================== AUTHENTICATION ====================
 function initializeAuth() {
@@ -227,13 +228,16 @@ function loadUserData() {
     updateBalance();
     updateStats();
     
-    initializeNavigation();
-    initializeSlots();
-    initializeBlackjack();
-    initializeRoulette();
-    initializeDice();
-    initializePoker();
-    initializeKeno();
+    if (!gamesInitialized) {
+        initializeNavigation();
+        initializeSlots();
+        initializeBlackjack();
+        initializeRoulette();
+        initializeDice();
+        initializePoker();
+        initializeKeno();
+        gamesInitialized = true;
+    }
 }
 
 function logout() {
@@ -395,6 +399,7 @@ function spinSlots() {
         document.getElementById('reel2'),
         document.getElementById('reel3')
     ];
+    const reelSymbols = reels.map(reel => reel.querySelector('.symbol'));
 
     reels.forEach(reel => reel.classList.add('spinning'));
 
@@ -405,13 +410,13 @@ function spinSlots() {
         
         const spinInterval = setInterval(() => {
             const symbol = slotSymbols[Math.floor(Math.random() * slotSymbols.length)];
-            reel.querySelector('.symbol').textContent = symbol;
+            reelSymbols[index].textContent = symbol;
             spinCount++;
 
             if (spinCount >= maxSpins) {
                 clearInterval(spinInterval);
                 const finalSymbol = slotSymbols[Math.floor(Math.random() * slotSymbols.length)];
-                reel.querySelector('.symbol').textContent = finalSymbol;
+                reelSymbols[index].textContent = finalSymbol;
                 results.push(finalSymbol);
                 reel.classList.remove('spinning');
 
@@ -672,9 +677,12 @@ let rouletteChipValue = 10;
 let rouletteBets = {};
 let rouletteTotalBet = 0;
 let rouletteSpinning = false;
+let rouletteBetCells = [];
 
 const redNumbers = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
 const blackNumbers = [2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35];
+const redNumberSet = new Set(redNumbers);
+const blackNumberSet = new Set(blackNumbers);
 
 function initializeRoulette() {
     const chipBtns = document.querySelectorAll('.chip-btn');
@@ -686,8 +694,8 @@ function initializeRoulette() {
         });
     });
 
-    const betCells = document.querySelectorAll('.number-cell, .outside-bet');
-    betCells.forEach(cell => {
+    rouletteBetCells = Array.from(document.querySelectorAll('.number-cell, .outside-bet'));
+    rouletteBetCells.forEach(cell => {
         cell.addEventListener('click', () => {
             if (!rouletteSpinning) {
                 placeBet(cell);
@@ -742,7 +750,8 @@ function clearRouletteBets() {
     rouletteTotalBet = 0;
     document.getElementById('rouletteTotalBet').textContent = '0';
 
-    document.querySelectorAll('.bet-placed').forEach(cell => {
+    rouletteBetCells.forEach(cell => {
+        if (!cell.classList.contains('bet-placed')) return;
         cell.classList.remove('bet-placed');
         const chipEl = cell.querySelector('.bet-chip');
         if (chipEl) chipEl.remove();
@@ -785,11 +794,11 @@ function checkRouletteWins(winningNumber) {
             won = true;
             payout = betAmount * 36;
         }
-        else if (betType === 'red' && redNumbers.includes(winningNumber)) {
+        else if (betType === 'red' && redNumberSet.has(winningNumber)) {
             won = true;
             payout = betAmount * 2;
         }
-        else if (betType === 'black' && blackNumbers.includes(winningNumber)) {
+        else if (betType === 'black' && blackNumberSet.has(winningNumber)) {
             won = true;
             payout = betAmount * 2;
         }
@@ -837,7 +846,8 @@ function checkRouletteWins(winningNumber) {
         rouletteBets = {};
         rouletteTotalBet = 0;
         document.getElementById('rouletteTotalBet').textContent = '0';
-        document.querySelectorAll('.bet-placed').forEach(cell => {
+        rouletteBetCells.forEach(cell => {
+            if (!cell.classList.contains('bet-placed')) return;
             cell.classList.remove('bet-placed');
             const chipEl = cell.querySelector('.bet-chip');
             if (chipEl) chipEl.remove();
@@ -1061,6 +1071,9 @@ function getCardRank(card) {
 let kenoBet = 100;
 let kenoSpinning = false;
 let kenoSelectedNumbers = [];
+let kenoCells = [];
+let kenoCellByNumber = [];
+const kenoPayouts = { 2: 2, 3: 5, 4: 15, 5: 50, 6: 150 };
 
 function initializeKeno() {
     const betBtns = document.querySelectorAll('#keno .bet-btn');
@@ -1081,6 +1094,8 @@ function initializeKeno() {
 function generateKenoGrid() {
     const grid = document.getElementById('kenoGrid');
     grid.innerHTML = '';
+    kenoCells = [];
+    kenoCellByNumber = [];
     for (let i = 1; i <= 80; i++) {
         const cell = document.createElement('div');
         cell.className = 'keno-cell';
@@ -1091,6 +1106,8 @@ function generateKenoGrid() {
             }
         });
         grid.appendChild(cell);
+        kenoCells.push(cell);
+        kenoCellByNumber[i] = cell;
     }
 }
 
@@ -1138,12 +1155,8 @@ function drawKeno() {
         const num = allNumbers[drawCount];
         drawnNumbers.push(num);
         
-        const cells = document.querySelectorAll('.keno-cell');
-        cells.forEach(cell => {
-            if (parseInt(cell.textContent) === num) {
-                cell.classList.add('drawn');
-            }
-        });
+        const cell = kenoCellByNumber[num];
+        if (cell) cell.classList.add('drawn');
 
         drawCount++;
         if (drawCount >= 20) {
@@ -1152,8 +1165,7 @@ function drawKeno() {
             let payout = 0;
 
             if (matches >= 2) {
-                const payouts = { 2: 2, 3: 5, 4: 15, 5: 50, 6: 150 };
-                payout = (payouts[matches] || 0) * kenoBet;
+                payout = (kenoPayouts[matches] || 0) * kenoBet;
             }
 
             if (payout > 0) {
@@ -1180,8 +1192,7 @@ function drawKeno() {
 function resetKenoPicks() {
     kenoSelectedNumbers = [];
     document.getElementById('kenoPicks').textContent = '0';
-    const cells = document.querySelectorAll('.keno-cell');
-    cells.forEach(cell => {
+    kenoCells.forEach(cell => {
         cell.classList.remove('selected', 'drawn');
     });
 }

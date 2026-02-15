@@ -1,6 +1,9 @@
 const express = require('express');
+const { body } = require('express-validator');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
+const admin = require('../middleware/admin');
+const validate = require('../middleware/validate');
 
 const router = express.Router();
 
@@ -13,7 +16,7 @@ router.get('/profile', auth, async (req, res) => {
         }
         res.json(user);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 });
 
@@ -23,27 +26,49 @@ router.get('/balance', auth, async (req, res) => {
         const user = await User.findById(req.user.id);
         res.json({ balance: user.balance });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 });
 
 // Update balance after game
-router.post('/update-balance', auth, async (req, res) => {
+router.post(
+    '/update-balance',
+    auth,
+    [
+        body('game').isString().isIn(['slots', 'blackjack', 'roulette', 'dice', 'poker', 'keno']),
+        body('bet').isFloat({ min: 0 }),
+        body('win').isFloat({ min: 0 })
+    ],
+    validate,
+    async (req, res) => {
     try {
         const { game, bet, win } = req.body;
 
         const user = await User.findById(req.user.id);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        const betAmount = Number(bet);
+        const winAmount = Number(win);
+        if (!Number.isFinite(betAmount) || !Number.isFinite(winAmount)) {
+            return res.status(400).json({ error: 'Invalid amount' });
+        }
+
+        if (betAmount > user.balance) {
+            return res.status(400).json({ error: 'Insufficient balance' });
+        }
         
         // Deduct bet
-        user.balance -= bet;
+        user.balance -= betAmount;
         user.totalBets++;
 
         // Add win
-        if (win > 0) {
-            user.balance += win;
+        if (winAmount > 0) {
+            user.balance += winAmount;
             user.totalWins++;
-            if (win > user.biggestWin) {
-                user.biggestWin = win;
+            if (winAmount > user.biggestWin) {
+                user.biggestWin = winAmount;
             }
         }
 
@@ -61,12 +86,12 @@ router.post('/update-balance', auth, async (req, res) => {
             biggestWin: user.biggestWin
         });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 });
 
 // Reset balance (admin only)
-router.post('/reset-balance', auth, async (req, res) => {
+router.post('/reset-balance', auth, admin, async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
         user.balance = 10000;
@@ -77,12 +102,12 @@ router.post('/reset-balance', auth, async (req, res) => {
         
         res.json({ message: 'Balance reset', balance: user.balance });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 });
 
 // Get global statistics (all users combined)
-router.get('/global-stats', async (req, res) => {
+router.get('/global-stats', auth, admin, async (req, res) => {
     try {
         const stats = await User.aggregate([
             {
@@ -109,12 +134,20 @@ router.get('/global-stats', async (req, res) => {
 
         res.json(stats[0]);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 });
 
 // Change password
-router.post('/change-password', auth, async (req, res) => {
+router.post(
+    '/change-password',
+    auth,
+    [
+        body('currentPassword').notEmpty(),
+        body('newPassword').isLength({ min: 6 })
+    ],
+    validate,
+    async (req, res) => {
     try {
         const { currentPassword, newPassword } = req.body;
 
@@ -138,7 +171,7 @@ router.post('/change-password', auth, async (req, res) => {
 
         res.json({ message: 'Password changed successfully' });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 });
 
